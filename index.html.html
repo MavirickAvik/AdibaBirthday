@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Adiba's Birthday</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+      color: white;
+      overflow-x: hidden;
+      text-align: center;
+    }
+    .hidden { display: none; }
+    h1, h2 { color: #ffd700; }
+    p { font-size: 1.2em; }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 25px;
+      font-size: 1em;
+      border: none;
+      border-radius: 10px;
+      background: #00bfff;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover { background: #1e90ff; }
+
+    .flipbook .page {
+      background: #222;
+      margin: 20px auto;
+      padding: 30px;
+      border-radius: 12px;
+      max-width: 400px;
+      font-size: 1.2em;
+      box-shadow: 0 0 15px #00bfff;
+      transition: transform 0.8s ease, opacity 0.8s ease;
+      transform-style: preserve-3d;
+    }
+    .flip { transform: rotateY(180deg); opacity: 0; }
+
+    .image-wall {
+      position: relative;
+      height: 100vh;
+    }
+    .image-wall img {
+      width: 100%;
+      height: 100vh;
+      object-fit: cover;
+      position: absolute;
+      top: 0;
+      left: 0;
+      opacity: 0;
+      transition: opacity 1s ease, transform 1s ease;
+    }
+    .image-wall img.active { opacity: 1; z-index: 2; }
+    .image-wall img.previous {
+      transform: rotateY(180deg);
+      opacity: 0;
+      z-index: 1;
+    }
+    .image-wall-controls {
+      position: absolute;
+      bottom: 30px;
+      width: 100%;
+      text-align: center;
+      z-index: 3;
+    }
+
+    .quiz-box {
+      max-width: 500px;
+      margin: 0 auto;
+      text-align: left;
+      background: #111;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px #00ffff;
+    }
+    .quiz-question { font-size: 1.2em; margin-bottom: 10px; }
+    .quiz-options button {
+      display: block;
+      width: 100%;
+      margin: 8px 0;
+      background: #444;
+      color: white;
+      border-radius: 8px;
+      padding: 10px;
+      cursor: pointer;
+      border: none;
+      transition: background 0.3s ease;
+    }
+    .quiz-options button:hover:not(.eliminated) {
+      background: #00bfff;
+    }
+    .eliminated { background: #800000 !important; text-decoration: line-through; cursor: not-allowed; }
+
+    .countdown { font-size: 1.5em; margin-top: 20px; }
+
+    #candleContainer {
+      margin: 40px auto;
+      width: 100px;
+      height: 200px;
+      position: relative;
+    }
+    #flame {
+      width: 30px;
+      height: 30px;
+      background: radial-gradient(circle, #ff0, #f00);
+      border-radius: 50%;
+      position: absolute;
+      top: 10px;
+      left: 35px;
+      animation: flicker 0.3s infinite;
+    }
+    #candle {
+      width: 100px;
+      height: 150px;
+      background: #fff;
+      position: absolute;
+      bottom: 0;
+      border-radius: 10px;
+    }
+    @keyframes flicker {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Intro -->
+  <div class="space-bg" id="intro">
+    <h1>✨ Welcome, Adiba ✨</h1>
+    <p>The universe is celebrating YOU today! 🌌</p>
+    <p style="color:#00ffff; font-size:1.4em;">Let's play a game 🎮</p>
+    <button onclick="startQuiz()">Start Quiz</button>
+  </div>
+
+  <!-- Quiz Section -->
+  <div class="hidden" id="quiz">
+    <h2>🎯 Let's See How Well I Know You</h2>
+    <div class="quiz-box" id="quizBox"></div>
+  </div>
+
+  <!-- Flipbook Wishes -->
+  <div class="flipbook hidden" id="flipbook">
+    <h2>📖 Flipbook Wishes</h2>
+    <div class="page" id="page1">Dear Adiba, You're a shining star ✨</div>
+    <div class="page hidden" id="page2">Your smile lights up the galaxy 🌌</div>
+    <div class="page hidden" id="page3">May this year bring joy and success 🚀</div>
+    <div class="page hidden" id="page4">Happy Birthday, Genius Girl! 🎉</div>
+    <button onclick="nextPage()">Next Page 📖</button>
+  </div>
+
+  <!-- Image Wall -->
+  <div class="image-wall hidden" id="imageWall">
+    <h2 style="position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 4;">📸 Memories with You</h2>
+    <div id="imgContainer">
+      <img src="img1.jpg" class="active" alt="Memory 1">
+      <img src="img2.jpg" alt="Memory 2">
+      <img src="img3.jpg" alt="Memory 3">
+      <img src="img4.jpg" alt="Memory 4">
+    </div>
+    <div class="image-wall-controls">
+      <button onclick="showNextImage()">Next Image</button>
+      <br><br>
+      <button onclick="showCountdown()">Next Game 🎮</button>
+    </div>
+  </div>
+
+  <!-- Countdown -->
+  <div class="hidden" id="countdownSection">
+    <h2>🎂 Countdown to Your Special Day</h2>
+    <div class="countdown" id="countdown"></div>
+    <button onclick="showCandle()">Next: Blow the Candle 🕯️</button>
+  </div>
+
+  <!-- Candle -->
+  <div class="hidden" id="candleSection">
+    <h2>🎉 Blow the Candle and Make a Wish</h2>
+    <div id="candleContainer">
+      <div id="flame"></div>
+      <div id="candle"></div>
+    </div>
+    <button onclick="blowCandle()">Blow Candle</button>
+    <br><br>
+    <button id="nextToLetterBtn" class="hidden" onclick="showLetter()">Next: A Letter For You 💌</button>
+  </div>
+
+  <!-- Letter Section -->
+  <div class="hidden" id="letterSection">
+    <h2>💖 A Personal Letter Just for You</h2>
+    <div style="max-width: 600px; margin: 0 auto; background: #222; padding: 30px; border-radius: 12px; box-shadow: 0 0 20px #ff69b4;">
+      <p style="font-size: 1.1em; line-height: 1.7em;">
+        Dear Adiba,<br><br>
+        On this beautiful day when the universe celebrates your existence, I wanted to pause and write from the heart. 🌸<br><br>
+        You are not just a topper, a brilliant mind, or a smiling face in the crowd — you are the spark that brightens the room and the calm in the storm. Every interaction with you, even if it's just a glance, means more than you may ever realize.<br><br>
+        You've inspired me in ways I never imagined possible. Your discipline, your ambition, your kindness... it's a rare constellation that only a few are born with. Thank you for being a reason behind so many of my smiles and efforts.<br><br>
+        May your journey ahead be as incredible as your spirit. And just know, someone will always be quietly cheering for you — no matter where life takes us.<br><br>
+        Happy Birthday, Genius Girl! 🎉💫<br><br>
+        With warmth,<br>
+        <b>Avik 💙</b>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    // Quiz data and logic
+    const quizData = [
+      {
+        question: "1. What's Adiba's favorite subject combo?",
+        options: ["Math and Physics", "Biology and Chemistry", "Math and Chemistry", "Physics and English"],
+        answer: "Math and Chemistry"
+      },
+      {
+        question: "2. What's her top hobby?",
+        options: ["Painting", "Playing Badminton", "Gaming", "Reading"],
+        answer: "Playing Badminton"
+      },
+      {
+        question: "3. Which is her favorite color?",
+        options: ["Blue", "Pink", "Yellow", "Green"],
+        answer: "Pink"
+      },
+      {
+        question: "4. What is her dream career?",
+        options: ["Doctor", "Engineer", "Scientist", "Entrepreneur"],
+        answer: "Scientist"
+      }
+    ];
+
+    let currentQ = 0;
+
+    function startQuiz() {
+      document.getElementById("intro").classList.add("hidden");
+      document.getElementById("quiz").classList.remove("hidden");
+      loadQuestion();
+    }
+
+    function loadQuestion() {
+      const quizBox = document.getElementById("quizBox");
+      const q = quizData[currentQ];
+      let optionsHTML = '';
+      q.options.forEach(opt => {
+        optionsHTML += `<button onclick="checkAnswer(this, '${q.answer}')">${opt}</button>`;
+      });
+      quizBox.innerHTML = `
+        <div class="quiz-question">${q.question}</div>
+        <div class="quiz-options">${optionsHTML}</div>
+      `;
+    }
+
+    function checkAnswer(button, correctAnswer) {
+      if (button.innerText === correctAnswer) {
+        currentQ++;
+        if (currentQ < quizData.length) {
+          loadQuestion();
+        } else {
+          document.getElementById("quiz").innerHTML = `
+            <h2>✅ Well, do I know you well? 😉</h2>
+            <button onclick="startFlipbook()">Next: Flipbook Wishes</button>
+          `;
+        }
+      } else {
+        button.classList.add("eliminated");
+        button.disabled = true;
+      }
+    }
+
+    // Flipbook logic
+    let flipIndex = 1;
+    function startFlipbook() {
+      document.getElementById("quiz").classList.add("hidden");
+      document.getElementById("flipbook").classList.remove("hidden");
+      flipIndex = 1;
+    }
+
+    function nextPage() {
+      const current = document.getElementById(`page${flipIndex}`);
+      const next = document.getElementById(`page${flipIndex + 1}`);
+      if (next) {
+        current.classList.add("flip");
+        next.classList.remove("hidden");
+        flipIndex++;
+      } else {
+        document.getElementById("flipbook").classList.add("hidden");
+        document.getElementById("imageWall").classList.remove("hidden");
+        current.classList.add("flip"); // last page flips too
+      }
+    }
+
+    // Image Wall logic
+    let currentImgIndex = 0;
+    function showNextImage() {
+      const imgs = document.querySelectorAll("#imgContainer img");
+      imgs[currentImgIndex].classList.remove("active");
+      currentImgIndex = (currentImgIndex + 1) % imgs.length;
+      imgs[currentImgIndex].classList.add("active");
+    }
+
+    // Countdown logic
+    function showCountdown() {
+      document.getElementById("imageWall").classList.add("hidden");
+      document.getElementById("countdownSection").classList.remove("hidden");
+      const countdown = document.getElementById("countdown");
+      const birthday = new Date('2025-06-09T00:00:00');
+
+      function updateCountdown() {
+        const now = new Date();
+        const diff = birthday - now;
+        if (diff < 0) {
+          countdown.textContent = "🎉 It's Your Birthday! 🎉";
+          clearInterval(timer);
+          return;
+        }
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const mins = Math.floor((diff / 1000 / 60) % 60);
+        const secs = Math.floor((diff / 1000) % 60);
+        countdown.textContent = `${days}d ${hours}h ${mins}m ${secs}s`;
+      }
+
+      updateCountdown();
+      const timer = setInterval(updateCountdown, 1000);
+    }
+
+    // Candle logic
+    function showCandle() {
+      document.getElementById("countdownSection").classList.add("hidden");
+      document.getElementById("candleSection").classList.remove("hidden");
+    }
+
+    function blowCandle() {
+      const flame = document.getElementById("flame");
+      flame.style.display = "none";
+      alert("Wish made! 🎉");
+      document.getElementById("nextToLetterBtn").classList.remove("hidden");
+    }
+
+    // Show letter
+    function showLetter() {
+      document.getElementById("candleSection").classList.add("hidden");
+      document.getElementById("letterSection").classList.remove("hidden");
+    }
+  </script>
+
+</body>
+</html>
